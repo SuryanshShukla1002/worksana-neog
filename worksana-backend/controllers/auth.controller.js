@@ -49,3 +49,17 @@ export const signOut = async (req, res, next) => {
         next(error);
     }
 };
+
+export const authenticatedUser = async (req, res, next) => {
+    try {
+        const getAuthenticated = await UserSchema.findById(req.user.id).select("-password");
+        console.log(getAuthenticated);
+        if (getAuthenticated) {
+            return res.status(200).json(getAuthenticated);
+        } else {
+            return next(errorHandler(404, "User not found"));
+        }
+    } catch (error) {
+        next(error);
+    }
+};
