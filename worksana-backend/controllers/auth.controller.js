@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserSchema from '../models/user.model.js';
 import { errorHandler } from '../utils/error.js';
+import Task from '../models/task.model.js';
 
 export const signup = async (req, res, next) => {
     const { name, email, password } = req.body;
@@ -53,12 +54,32 @@ export const signOut = async (req, res, next) => {
 export const authenticatedUser = async (req, res, next) => {
     try {
         const getAuthenticated = await UserSchema.findById(req.user.id).select("-password");
-        console.log(getAuthenticated);
+        // console.log(getAuthenticated);
         if (getAuthenticated) {
             return res.status(200).json(getAuthenticated);
         } else {
             return next(errorHandler(404, "User not found"));
         }
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const taskUrlBased = async (req, res, next) => {
+    try {
+        const { project, team, owners, status } = req.query;
+
+        const filters = {};
+        if (status) filters.status = status;
+        if (project) filters.project = project;
+        if (team) filters.team = team;
+        if (owners) filters.owners = { $in: [owners] };
+
+        const TaskByUrlBased = await Task.find(filters).populate("project", "name")
+            .populate("team", "name description")
+            .populate("owners", "name email");
+
+        res.status(200).json(TaskByUrlBased);
     } catch (error) {
         next(error);
     }
