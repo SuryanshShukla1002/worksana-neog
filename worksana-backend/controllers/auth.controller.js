@@ -15,7 +15,9 @@ export const signup = async (req, res, next) => {
 
     try {
         await newUser.save();
-        res.status(201).json("User Created Successfully");
+        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRECT, { expiresIn: "24h" });
+        const { password: pass, ...rest } = newUser._doc;
+        res.cookie('access_token', token, { httpOnly: true, sameSite: "lax" }).status(201).json(rest);
     } catch (error) {
         next(error);
     }
@@ -36,7 +38,7 @@ export const login = async (req, res, next) => {
         const token = jwt.sign({ id: validateUser._id }, process.env.JWT_SECRECT, { expiresIn: "24h" });
         const { password: pass, ...rest } = validateUser._doc;
 
-        res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
+        res.cookie('access_token', token, { httpOnly: true, sameSite: "lax" }).status(200).json(rest);
     } catch (error) {
         next(error);
     }
@@ -44,7 +46,10 @@ export const login = async (req, res, next) => {
 
 export const signOut = async (req, res, next) => {
     try {
-        res.clearCookie('access_token');
+        res.clearCookie("access_token", {
+            httpOnly: true,
+            sameSite: "lax",
+        });
         res.status(201).json("User Removed");
     } catch (error) {
         next(error);
@@ -63,7 +68,7 @@ export const authenticatedUser = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
+}; 
 
 export const taskUrlBased = async (req, res, next) => {
     try {
