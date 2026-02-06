@@ -32,6 +32,17 @@ export const getAllTask = async (req, res, next) => {
     }
 };
 
+export const getTaskById = async (req, res, next) => {
+    try {
+        const taskget = await Task.findById(req.params.detailId).populate("project", "name")
+            .populate("team", "name description")
+            .populate("owners", "name email");
+        res.status(200).json(taskget);
+    } catch (error) {
+        next(error);
+    }
+};
+ 
 export const updateTask = async (req, res, next) => {
     try {
         const taskupdation = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
