@@ -3,12 +3,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const MongoDBuri = process.env.MONGODB;
 
-export const setupTheDatabase = () => {
-    mongoose.connect(MongoDBuri).then(() => {
+export const setupTheDatabase = async () => {
+    try {
+        await mongoose.connect(process.env.MONGODB);
         console.log("Connection with database is successfull");
-    }).catch((error) => {
+    } catch (error) {
         console.log("Unable to connect with Database");
-    });
+        throw error;
+    }
 };

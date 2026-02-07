@@ -24,7 +24,7 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 
-setupTheDatabase();
+await setupTheDatabase();
 
 app.use('/api/auth', authRouter);
 app.use("/api/task", taskRouter);
